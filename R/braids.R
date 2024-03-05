@@ -70,8 +70,6 @@ print.braid <- function(x, ...) {
 #'
 #' @return An integer.
 #' @export
-#'
-#' @examples
 numberOfStrands <- function(braid) {
   attr(braid, "n")
 }
