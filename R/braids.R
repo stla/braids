@@ -187,7 +187,7 @@ doubleSigma <- function(n, s, t) {
     stop("The `t` index is out of range.")
   }
   if(s >= t) {
-    stop("`s` must be strictly smaller than `t`.")
+    stop("The `s` index must be strictly smaller than the `t` index.")
   }
   if(t - 1L <= s) {
     gens <- lapply((t-1L):s, Sigma)
