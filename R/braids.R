@@ -516,3 +516,71 @@ allBraidWords <- function(n, l) {
     mkBraid(n, gens)
   })
 }
+
+longZipWith <- function(a0, b0, f, a_, b_) {
+  go <- function(xxs, yys) {
+    if(length(xxs) == 0L) {
+      vapply(yys, function(y) {
+        f(a0, y)
+      }, integer(1L))
+    } else if(length(yys) == 0L) {
+      vapply(xxs, function(x) {
+        f(x, b0)
+      }, integer(1L))
+    } else {
+      c(f(xxs[[1L]], yys[[1L]]), go(xxs[-1L], yys[-1L]))
+    }
+  }
+  go(a_, b_)
+}
+
+addSeries <- function(xs, ys) {
+  longZipWith(0L, 0L, `+`, xs, ys)
+}
+
+sumSeries <- function(xs) {
+  if(length(xs) == 0L) {
+    0L
+  } else {
+    Reduce(addSeries, xs)
+  }
+}
+
+#' @title Bronfman polynomials
+#' @description The Bronfman polynomial of a braid group is the reciprocal of
+#'   the growth function of the positive braids. This function computes the
+#'   Bronfman polynomial of the braid group on \code{n} strands for \code{n}
+#'   going to \code{1} to \code{N}.
+#'
+#' @param N maximum number of strands
+#'
+#' @return A list of integer vectors representing the Bronfman polynomials;
+#'   each vector represents the polynomial coefficients in increasing order.
+#' @export
+#'
+#' @examples
+#' bronfmanPolynomials(3) # 1, 1 - X, 1 - 2X + X^3
+bronfmanPolynomials <- function(N) {
+  sgn <- function(i, x) {
+    if(i %% 2L == 0L) {
+      -x
+    } else {
+      x
+    }
+  }
+  choose2 <- function(k) {
+    (k * (k - 1L)) %/% 2L
+  }
+  go <- function(n) {
+    if(n == 0L) {
+      1L
+    } else {
+      sumSeries(lapply(1L:n, function(i) {
+        e <- go(n - i)
+        v <- c(rep(0L, choose2(i)), e)
+        sgn(i, v)
+      }))
+    }
+  }
+  lapply(1L:N, go)
+}
