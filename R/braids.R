@@ -345,6 +345,8 @@ isPositiveBraidWord <- function(braid) {
 #'
 #' @return A matrix.
 #' @export
+#' @seealso \code{\link{strandLinking}} to get the linking number between
+#'   two strands of the braid.
 #'
 #' @examples
 #' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
@@ -373,6 +375,55 @@ linkingMatrix <- function(braid) {
     doSwap(k)
   }
   mat
+}
+
+#' @title Linking number between two strands
+#' @description The linking number between two strands of a braid.
+#'
+#' @param braid a \code{braid} object
+#' @param i,j indices of two strands
+#'
+#' @return An integer.
+#' @export
+#' @seealso \code{\link{linkingMatrix}} to get the linking numbers between
+#'   all pairs of strands of the braid.
+#'
+#' @examples
+#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' strandLinking(braid, 1, 3)
+strandLinking <- function(braid, i, j) {
+  n <- numberOfStrands(braid)
+  stopifnot(isPositiveInteger(i), isPositiveInteger(j), i <= n, j <= n)
+  if(i == j) {
+    0L
+  } else {
+    go <- function(s, t, gens) {
+      if(length(gens) == 0L) {
+        0L
+      } else {
+        g <- gens[[1L]]
+        gs <- gens[-1L]
+        k <- g[1L]
+        sgn <- g[2L]
+        if(s == k && t == k+1L) {
+          sgn + go(s + 1L, t - 1L, gs)
+        } else if(t == k && s == k+1L) {
+          sgn + go(s - 1L, t + 1L, gs)
+        } else if(s == k) {
+          go(s + 1L, t, gs)
+        } else if(s == k+1L) {
+          go(s - 1L, t, gs)
+        } else if(t == k) {
+          go(s, t + 1L, gs)
+        } else if(t == k + 1L) {
+          go(s, t - 1L, gs)
+        } else {
+          go(s, t, gs)
+        }
+      }
+    }
+    go(i, j, braid)
+  }
 }
 
 #' @title Whether a braid is a permutation braid

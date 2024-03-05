@@ -19,3 +19,7 @@ Linking numbers between all pairs of strands of a braid.
 braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
 linkingMatrix(braid)
 }
+\seealso{
+\code{\link{strandLinking}} to get the linking number between
+  two strands of the braid.
+}
