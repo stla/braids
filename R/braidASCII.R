@@ -1,0 +1,318 @@
+# hSepString :: HSep -> String
+# hSepString hsep = case hsep of
+#   HSepEmpty    -> ""
+#   HSepSpaces k -> replicate k ' '
+#   HSepString s -> s
+hSepString <- function(hsep) {
+  sep <- attr(hsep, "sep")
+  switch(
+    sep,
+    "empty" = "",
+    "spaces" = paste0(rep(" ", hsep), collapse = ""),
+    "string" = hsep
+  )
+}
+
+vSepString <- function(vsep) {
+  sep <- attr(vsep, "sep")
+  switch(
+    sep,
+    "empty" = character(0L),
+    "spaces" = paste0(rep(" ", vsep), collapse = ""),
+    "string" = vsep
+  )
+}
+
+vSepSpaces <- function(k) {
+  out <- k
+  attr(out, "sep") <- "spaces"
+  out
+}
+
+vSepSize <- function(vsep) {
+  nchar(vSepString(vsep))
+}
+
+HSepEmpty <- function() {
+  out <- "."
+  attr(out, "sep") <- "empty"
+  out
+}
+
+ASCII <- function(x, y, lines) {
+  list("x" = x, "y" = y, "lines" = lines)
+}
+
+asciiLines <- function(ascii) {
+  ascii[["lines"]]
+}
+
+# -- | Extends an ASCII figure with spaces vertically to the given height.
+# -- Note: the alignment is the alignment of the original picture in the new bigger picture!
+# vExtendTo :: VAlign -> Int -> ASCII -> ASCII
+# vExtendTo valign n0 rect@(ASCII (x,y) ls) = vExtendWith valign (max n0 y - y) rect
+vExtendTo <- function(valign, n0, rect) {
+  y <- rect[["y"]]
+  vExtendWith(valign, max(n0, y) - y, rect)
+}
+
+
+# -- | Extend vertically with the given number of empty lines.
+# vExtendWith :: VAlign -> Int -> ASCII -> ASCII
+# vExtendWith valign d (ASCII (x,y) ls) = ASCII (x,y+d) (f ls) where
+#   f ls = case valign of
+#     VTop     -> ls ++ replicate d emptyline
+#     VBottom  -> replicate d emptyline ++ ls
+#     VCenter  -> replicate a emptyline ++ ls ++ replicate (d-a) emptyline
+#   a = div d 2
+#   emptyline = replicate x ' '
+vExtendWith <- function(valign, d, rect) {
+  x <- rect[["x"]]
+  y <- rect[["y"]]
+  lines <- rect[["lines"]]
+  emptyLine <- paste0(rep(" ", x), collapse = "")
+  f <- function(ls) {
+    a <- d %/% 2L
+    switch(
+      valign,
+      "Vtop" = c(ls, rep(emptyLine, d)),
+      "Vbottom" = c(rep(emptyLine, d), ls),
+      "Vcenter" = c(rep(emptyLine, a), ls, rep(emptyLine, d - a))
+    )
+  }
+  ASCII(x, y + d, f(lines))
+}
+
+# -- | Extends an ASCII figure with spaces horizontally to the given width.
+# -- Note: the alignment is the alignment of the original picture in the new bigger picture!
+# hExtendTo :: HAlign -> Int -> ASCII -> ASCII
+# hExtendTo halign n0 rect@(ASCII (x,y) ls) = hExtendWith halign (max n0 x - x) rect
+hExtendTo <- function(halign, n0, rect) {
+  x <- rect[["x"]]
+  hExtendWith(halign, max(n0, x) - x, rect)
+}
+
+# -- | Extend horizontally with the given number of spaces.
+# hExtendWith :: HAlign -> Int -> ASCII -> ASCII
+# hExtendWith alignment d (ASCII (x,y) ls) = ASCII (x+d,y) (map f ls) where
+#   f l = case alignment of
+#     HLeft   -> l ++ replicate d ' '
+#     HRight  -> replicate d ' ' ++ l
+#     HCenter -> replicate a ' ' ++ l ++ replicate (d-a) ' '
+#   a = div d 2
+hExtendWith <- function(halign, d, rect) {
+  x <- rect[["x"]]
+  y <- rect[["y"]]
+  lines <- rect[["lines"]]
+  f <- function(l) {
+    a <- d %/% 2L
+    switch(
+      halign,
+      "Hleft" = paste0(c(l, rep(" ", d)), collapse = ""),
+      "Hright" = paste0(c(rep(" ", d), l), collapse = ""),
+      "Hcenter" = paste0(c(rep(" ", a), l, rep(" ", d - a)), collapse = "")
+    )
+  }
+  ASCII(x + d, y, vapply(lines, f, character(1L)))
+}
+
+
+# asciiFromLines :: [String] -> ASCII
+# asciiFromLines ls = ASCII (x,y) (map f ls) where
+#   y   = length ls
+#   x   = maximum (map length ls)
+#   f l = l ++ replicate (x - length l) ' '
+asciiFromLines <- function(ls) {
+  y <- length(ls)
+  x <- max(vapply(ls, nchar, integer(1L)))
+  f <- function(l) {
+    paste0(c(l, rep(" ", x - nchar(l))), collapse = "")
+  }
+  ASCII(x, y, vapply(ls, f, character(1L)))
+}
+
+# -- | Horizontal concatenation, top-aligned, no separation
+# hCatTop :: [ASCII] -> ASCII
+# hCatTop = hCatWith VTop HSepEmpty
+#
+hCatTop <- function(asciis) {
+  hCatWith("Vtop", HSepEmpty(), asciis)
+}
+
+# -- | General horizontal concatenation
+# hCatWith :: VAlign -> HSep -> [ASCII] -> ASCII
+# hCatWith valign hsep rects = ASCII (x',maxy) final where
+#   n    = length rects
+#   maxy = maximum [ y | ASCII (_,y) _ <- rects ]
+#   xsz  =         [ x | ASCII (x,_) _ <- rects ]
+#   sep   = hSepString hsep
+#   sepx  = length sep
+#   rects1 = map (vExtendTo valign maxy) rects
+#   x' = sum' xsz + (n-1)*sepx
+#   final = map (intercalate sep) $ transpose (map asciiLines rects1)
+hCatWith <- function(valign, hsep, rects) {
+  n <- length(rects)
+  maxy <- max(vapply(rects, `[[`, integer(1L), "y"))
+  xsz <- vapply(rects, `[[`, integer(1L), "x")
+  sep <- hSepString(hsep)
+  sepx <- length(sep)
+  rects1 <- lapply(rects, function(rect) {
+    vExtendTo(valign, maxy, rect)
+  })
+  x2 <- sum(xsz) + (n - 1L) * sepx
+  M <- do.call(rbind, lapply(rects1, asciiLines))
+  final <- apply(M, 2L, paste0, collapse = sep)
+  ASCII(x2, maxy, final)
+}
+
+# intercalate : List A → List (List A) → List A
+# intercalate xs []         = []
+# intercalate xs (ys ∷ [])  = ys
+# intercalate xs (ys ∷ yss) = ys ++ xs ++ intercalate xs yss
+intercalate <- function(sep, x) {
+  if(length(x) == 0L) {
+    list()
+  } else if(length(x) == 1L) {
+    x[1L]
+  } else {
+    unlist(c(x[1L], list(sep), intercalate(sep, x[-1L])))
+  }
+}
+
+#intercalate(c("a", "b"), list(c("xxx", "yyy"), c("zzz", "ooo"), c("uuu", "vvv")))
+
+# -- | General vertical concatenation
+# vCatWith :: HAlign -> VSep -> [ASCII] -> ASCII
+# vCatWith halign vsep rects = ASCII (maxx,y') final where
+#   n    = length rects
+#   maxx = maximum [ x | ASCII (x,_) _ <- rects ]
+#   ysz  =         [ y | ASCII (_,y) _ <- rects ]
+#   sepy    = vSepSize vsep
+#   fullsep = transpose (replicate maxx $ vSepString vsep) :: [String]
+#   rects1  = map (hExtendTo halign maxx) rects
+#   y'    = sum' ysz + (n-1)*sepy
+#   final = intercalate fullsep $ map asciiLines rects1
+vCatWith <- function(halign, vsep, rects) {
+  n <- length(rects)
+  maxx <- max(vapply(rects, `[[`, integer(1L), "x"))
+  ysz <- vapply(rects, `[[`, integer(1L), "y")
+  sepy <- vSepSize(vsep)
+  vsepstring <- vSepString(vsep)
+  fullsep <- apply(
+    rbind(
+      vapply(strsplit(vsepstring, "")[[1L]], rep, character(maxx), times = maxx)
+    ),
+    2L, paste0, collapse = ""
+  )
+  rects1 <- lapply(rects, function(rect) {
+    hExtendTo(halign, maxx, rect)
+  })
+  y2 <- sum(ysz) + (n - 1L) * sepy
+  final <- intercalate(fullsep, lapply(rects1, asciiLines))
+  ASCII(maxx, y2, final)
+}
+
+# -- | A box simply filled with the given character
+# filledBox :: Char -> (Int,Int) -> ASCII
+# filledBox c (x0,y0) = asciiFromLines $ replicate y (replicate x c) where
+#   x = max 0 x0
+#   y = max 0 y0
+#
+# -- | A box of spaces
+# transparentBox :: (Int,Int) -> ASCII
+# transparentBox = filledBox ' '
+filledBox <- function(c, x0, y0) {
+  x <- max(0L, x0)
+  y <- max(0L, y0)
+  asciiFromLines(rep(paste0(rep(c, x), collapse = ""), y))
+}
+
+transparentBox <- function(x0, y0) {
+  filledBox(" ", x0, y0)
+}
+
+asciiShow <- function(x) {
+  asciiFromLines(x)
+}
+# horizBraidASCII' :: KnownNat n => Bool -> Braid n -> ASCII
+# horizBraidASCII' flipped braid@(Braid gens) = final where
+#
+#   n = numberOfStrands braid
+#
+#   final        = vExtendWith VTop 1 $ hCatTop allBlocks
+#   allBlocks    = prelude ++ middleBlocks ++ epilogue
+#   prelude      = [ numberBlock   , spaceBlock , beginEndBlock ]
+#   epilogue     = [ beginEndBlock , spaceBlock , numberBlock'  ]
+#   middleBlocks = map block gens
+#
+#   block g = case g of
+#     Sigma    i -> block' i $ if flipped then over  else under
+#     SigmaInv i -> block' i $ if flipped then under else over
+#
+#   block' i middle = asciiFromLines $ drop 2 $ concat
+#                   $ replicate a horiz ++ [space3, middle] ++ replicate b horiz
+#     where
+#       (a,b) = if flipped then (n-i-1,i-1) else (i-1,n-i-1)
+#
+#   spaceBlock    = transparentBox (1,n*3-2)
+#   beginEndBlock = asciiFromLines $ drop 2 $ concat $ replicate n horiz
+#   numberBlock   = mkNumbers [1..n]
+#   numberBlock'  = mkNumbers $ P.fromPermutation $ braidPermutation braid
+#
+#   mkNumbers :: [Int] -> ASCII
+#   mkNumbers list = vCatWith HRight (VSepSpaces 2) $ map asciiShow
+#                  $ (if flipped then reverse else id) $ list
+#
+#   under  = [ "\\ /" , " / "  , "/ \\" ]
+#   over   = [ "\\ /" , " \\ " , "/ \\" ]
+#   horiz  = [ "   "  , "   "  , "___"  ]
+#   space3 = [ "   "  , "   "  , "   "  ]
+horizBraidASCII <- function(flipped, braid) {
+  under  = c("\\ /" , " / "  , "/ \\")
+  over   = c("\\ /" , " \\ " , "/ \\")
+  horiz  = c("   "  , "   "  , "___")
+  space3 = c("   "  , "   "  , "   ")
+  n <- numberOfStrands(braid)
+  block2 <- function(i, middle) {
+    if(flipped) {
+      a <- n - i - 1L
+      b <- i - 1L
+    } else {
+      a <- i - 1L
+      b <- n - i - 1L
+    }
+    x <- c(rep(horiz, a), c(space3, middle), rep(horiz, b))
+    asciiFromLines(x[-c(1L, 2L)])
+  }
+  block <- function(g) {
+    i <- g[1L]
+    if(g[2L] == 1L) {
+      block2(i, if(flipped) over else under)
+    } else {
+      block2(i, if(flipped) under else over)
+    }
+  }
+  mkNumbers <- function(x) {
+    if(flipped) x <- rev(x)
+    vCatWith(
+      "Hright",
+      vSepSpaces(2L),
+      lapply(x, asciiShow)
+    )
+  }
+  spaceBlock <- transparentBox(1L, 3L*n - 2L)
+  beginEndBlock <- asciiFromLines(rep(horiz, n)[-c(1L, 2L)])
+  numberBlock <- mkNumbers(1L:n)
+  numberBlock2 <- mkNumbers(braidPermutation(braid))
+  prelude <- list(numberBlock, spaceBlock, beginEndBlock)
+  epilogue <- list(beginEndBlock, spaceBlock, numberBlock2)
+  middleBlocks <- lapply(braid, block)
+  allBlocks <- c(prelude, middleBlocks, epilogue)
+  vExtendWith("Vtop", 1L, hCatTop(allBlocks))
+}
+
+braidASCII <- function(braid) {
+  lines <- horizBraidASCII(FALSE, braid)
+  cat(lines, sep = "\n")
+  invisible()
+}
