@@ -213,7 +213,7 @@ horizBraidASCII <- function(flipped, braid) {
 #' braid <- mkBraid(4, list(Sigma(1), SigmaInv(2)))
 #' braidASCII(braid)
 braidASCII <- function(braid) {
-  lines <- horizBraidASCII(FALSE, braid)
-  cat(lines, sep = "\n")
+  ascii <- horizBraidASCII(FALSE, braid)
+  cat(ascii[["lines"]], sep = "\n")
   invisible()
 }
