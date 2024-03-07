@@ -210,7 +210,7 @@ horizBraidASCII <- function(flipped, braid) {
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(1), SigmaInv(2)))
+#' braid <- mkBraid(4, c(1, -2))
 #' braidASCII(braid)
 braidASCII <- function(braid) {
   ascii <- horizBraidASCII(FALSE, braid)

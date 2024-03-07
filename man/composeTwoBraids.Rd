@@ -16,6 +16,6 @@ A \code{braid} object.
 Composes two braids, doing free reduction on the result.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 composeTwoBraids(braid, braid)
 }

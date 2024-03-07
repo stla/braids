@@ -7,7 +7,7 @@
 tau(braid)
 }
 \arguments{
-\item{braid}{a \code{braid} object created with \code{\link{mkBraid}}}
+\item{braid}{a \code{braid} object}
 }
 \value{
 A \code{braid} object.
@@ -19,6 +19,6 @@ The inner automorphism defined by
   \eqn{\sigma_{n-j}}.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 tau(braid)
 }

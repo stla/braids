@@ -16,6 +16,6 @@ No value is returned, just prints the ASCII figure.
 Prints an ASCII figure of a braid.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(1), SigmaInv(2)))
+braid <- mkBraid(4, c(1, -2))
 braidASCII(braid)
 }

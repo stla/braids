@@ -2,24 +2,15 @@ isPositiveInteger <- function(n) {
   length(n) == 1L && is.numeric(n) && !is.na(n) && n != 0 && floor(n) == n
 }
 
-#' @title Artin generators
-#' @description A standard Artin generator of a braid: \code{Sigma(i)}
-#'   represents twisting the neighbour strands \code{i} and \code{i+1},
-#'   such that strand \code{i} goes \emph{under} strand \code{i+1}.
-#'
-#' @param i index of the strand, a positive integer
-#'
-#' @returns A vector of two integers.
-#' @export
-#' @name ArtinGenerators
-#' @rdname ArtinGenerators
+areIntegers <- function(x) {
+  is.numeric(x) && !any(is.na(x)) && all(floor(x) == x)
+}
+
 Sigma <- function(i) {
   stopifnot(isPositiveInteger(i))
   c(as.integer(i), 1L)
 }
 
-#' @export
-#' @rdname ArtinGenerators
 SigmaInv <- function(i) {
   stopifnot(isPositiveInteger(i))
   c(as.integer(i), -1L)
@@ -29,21 +20,36 @@ SigmaInv <- function(i) {
 #' @description Make a braid.
 #'
 #' @param n number of strands, an integer, at least 2
-#' @param brgens list of generators obtained with \code{\link{Sigma}} or
-#'   \code{\link{SigmaInv}}
+#' @param artingens Artin generators given by a vector of non-zero
+#'   integers; a positive integer \code{i} corresponds to the
+#'   standard positive Artin generator of a braid which
+#'   represents twisting the neighbour strands \code{i} and \code{i+1},
+#'   such that strand \code{i} goes \emph{under} strand \code{i+1}; a
+#'   negative integer \code{-i} corresponds to the inverse.
 #'
 #' @return A \code{braid} object.
 #' @export
 #'
 #' @examples
-#' mkBraid(4, list(Sigma(2), SigmaInv(3)))
-mkBraid <- function(n, brgens) {
+#' mkBraid(n = 4, c(2, -3))
+mkBraid <- function(n, artingens) {
   stopifnot(isPositiveInteger(n), n >= 2)
-  out <- brgens
-  idx <- vapply(brgens, `[[`, integer(1L), 1L)
-  if(any(idx) >= n) {
+  stopifnot(areIntegers(artingens), all(artingens != 0))
+  if(any(abs(artingens) >= n)) {
     stop("Found a generator with a too large index.")
   }
+  gens <- lapply(as.integer(artingens), function(i) {
+    if(i > 0L) {
+      Sigma(i)
+    } else {
+      SigmaInv(-i)
+    }
+  })
+  mkBraid0(n, gens)
+}
+
+mkBraid0 <- function(n, gens) {
+  out <- gens
   attr(out, "n") <- as.integer(n)
   class(out) <- "braid"
   out
@@ -59,14 +65,14 @@ print.braid <- function(x, ...) {
     } else {
       sprintf("sigmaInv_%d", idx[i])
     }
-  }, character(1L)), collapse = " "))
+  }, character(1L)), collapse = "*"))
   invisible()
 }
 
 #' @title Number of strands
 #' @description The number of strands of a braid.
 #'
-#' @param braid a \code{braid} object created with \code{\link{mkBraid}}
+#' @param braid a \code{braid} object (e.g. created with \code{\link{mkBraid}})
 #'
 #' @return An integer.
 #' @export
@@ -78,14 +84,14 @@ numberOfStrands <- function(braid) {
 #' @description Applies free reduction to a braid, i.e. removes pairs of
 #'   consecutive generators inverse of each other.
 #'
-#' @param braid a \code{braid} object created with \code{\link{mkBraid}}
+#' @param braid a \code{braid} object (e.g. created with \code{\link{mkBraid}})
 #'
 #' @return A \code{braid} object.
 #' @export
 #' @importFrom maybe just nothing is_nothing from_just
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' freeReduceBraidWord(braid)
 freeReduceBraidWord <- function(braid) {
   reduceStep <- function(gens) {
@@ -131,19 +137,19 @@ freeReduceBraidWord <- function(braid) {
       loop(from_just(x))
     }
   }
-  mkBraid(numberOfStrands(braid), loop(braid))
+  mkBraid0(numberOfStrands(braid), loop(braid))
 }
 
 #' @title Braid permutation
 #' @description Returns the left-to-right permutation associated to a braid.
 #'
-#' @param braid a \code{braid} object created with \code{\link{mkBraid}}
+#' @param braid a \code{braid} object (e.g. created with \code{\link{mkBraid}})
 #'
 #' @return A permutation.
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' braidPermutation(braid)
 braidPermutation <- function(braid) {
   n <- numberOfStrands(braid)
@@ -194,7 +200,7 @@ doubleSigma <- function(n, s, t) {
   } else {
     gens <- lapply((s+1L):(t-1L), SigmaInv)
   }
-  mkBraid(n, gens)
+  mkBraid0(n, gens)
 }
 
 #' @title Half-twist
@@ -218,7 +224,7 @@ halfTwist <- function(n) {
   })
   gens <- lapply(do.call(c, subs), Sigma)
   # }
-  mkBraid(n, gens)
+  mkBraid0(n, gens)
 }
 
 #' @title Inner automorphism
@@ -227,13 +233,13 @@ halfTwist <- function(n) {
 #'   positive half-twist; it send each generator \eqn{\sigma_j} to
 #'   \eqn{\sigma_{n-j}}.
 #'
-#' @param braid a \code{braid} object created with \code{\link{mkBraid}}
+#' @param braid a \code{braid} object
 #'
 #' @return A \code{braid} object.
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' tau(braid)
 tau <- function(braid) {
   n <- numberOfStrands(braid)
@@ -245,19 +251,19 @@ tau <- function(braid) {
       SigmaInv(n - i)
     }
   })
-  mkBraid(n, gens)
+  mkBraid0(n, gens)
 }
 
 #' @title Inverse braid
 #' @description The inverse of a braid (without performing reduction).
 #'
-#' @param braid a \code{braid} object created with \code{\link{mkBraid}}
+#' @param braid a \code{braid} object
 #'
 #' @return A \code{braid} object.
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' ibraid <- inverseBraid(braid)
 #' composeTwoBraids(braid, ibraid)
 inverseBraid <- function(braid) {
@@ -265,7 +271,7 @@ inverseBraid <- function(braid) {
   invgens <- lapply(braid, function(gen) {
     c(gen[1L], -gen[2L])
   })
-  mkBraid(n, rev(invgens))
+  mkBraid0(n, rev(invgens))
 }
 
 #' @title Composition of two braids
@@ -277,14 +283,14 @@ inverseBraid <- function(braid) {
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' composeTwoBraids(braid, braid)
 composeTwoBraids <- function(braid1, braid2) {
   n <- numberOfStrands(braid1)
   if(n != numberOfStrands(braid2)) {
     stop("Unequal numbers of strands.")
   }
-  freeReduceBraidWord(mkBraid(n, c(braid1, braid2)))
+  freeReduceBraidWord(mkBraid0(n, c(braid1, braid2)))
 }
 
 #' @title Composition of many braids.
@@ -296,7 +302,7 @@ composeTwoBraids <- function(braid1, braid2) {
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' composeManyBraids(list(braid, braid, braid))
 composeManyBraids <- function(braids) {
   ns <- vapply(braids, numberOfStrands, integer(1L))
@@ -304,7 +310,7 @@ composeManyBraids <- function(braids) {
   if(any(ns != n)) {
     stop("Unequal numbers of strands.")
   }
-  freeReduceBraidWord(mkBraid(n, do.call(c, braids)))
+  freeReduceBraidWord(mkBraid0(n, do.call(c, braids)))
 }
 
 #' @title Whether a braid is pure
@@ -316,7 +322,7 @@ composeManyBraids <- function(braids) {
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' isPureBraid(braid)
 isPureBraid <- function(braid) {
   identical(braidPermutation(braid), seq_len(numberOfStrands(braid)))
@@ -331,7 +337,7 @@ isPureBraid <- function(braid) {
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' isPositiveBraidWord(braid)
 isPositiveBraidWord <- function(braid) {
   signs <- vapply(braid, `[[`, integer(1L), 2L)
@@ -349,7 +355,7 @@ isPositiveBraidWord <- function(braid) {
 #'   two strands of the braid.
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' linkingMatrix(braid)
 linkingMatrix <- function(braid) {
   n <- numberOfStrands(braid)
@@ -389,7 +395,7 @@ linkingMatrix <- function(braid) {
 #'   all pairs of strands of the braid.
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' strandLinking(braid, 1, 3)
 strandLinking <- function(braid, i, j) {
   n <- numberOfStrands(braid)
@@ -436,7 +442,7 @@ strandLinking <- function(braid, i, j) {
 #' @export
 #'
 #' @examples
-#' braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+#' braid <- mkBraid(4, c(2, -3, 3))
 #' isPermutationBraid(braid)
 isPermutationBraid <- function(braid) {
   if(isPositiveBraidWord(braid)) {
@@ -496,7 +502,7 @@ isPermutation <- function(x) {
 permutationBraid <- function(perm) {
   stopifnot(isPermutation(perm), length(perm) >= 2)
   gens <- lapply(do.call(c, .permutationBraid(perm)), Sigma)
-  mkBraid(length(perm), gens)
+  mkBraid0(length(perm), gens)
 }
 
 .allPositiveBraidWords <- function(n, l) {
@@ -528,7 +534,7 @@ permutationBraid <- function(perm) {
 allPositiveBraidWords <- function(n, l) {
   stopifnot(isPositiveInteger(n), n >= 2)
   lapply(.allPositiveBraidWords(n, l), function(gens) {
-    mkBraid(n, gens)
+    mkBraid0(n, gens)
   })
 }
 
@@ -564,7 +570,7 @@ allPositiveBraidWords <- function(n, l) {
 allBraidWords <- function(n, l) {
   stopifnot(isPositiveInteger(n), n >= 2)
   lapply(.allBraidWords(n, l), function(gens) {
-    mkBraid(n, gens)
+    mkBraid0(n, gens)
   })
 }
 

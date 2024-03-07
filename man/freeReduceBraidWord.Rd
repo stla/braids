@@ -7,7 +7,7 @@
 freeReduceBraidWord(braid)
 }
 \arguments{
-\item{braid}{a \code{braid} object created with \code{\link{mkBraid}}}
+\item{braid}{a \code{braid} object (e.g. created with \code{\link{mkBraid}})}
 }
 \value{
 A \code{braid} object.
@@ -17,6 +17,6 @@ Applies free reduction to a braid, i.e. removes pairs of
   consecutive generators inverse of each other.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 freeReduceBraidWord(braid)
 }

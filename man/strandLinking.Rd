@@ -18,7 +18,7 @@ An integer.
 The linking number between two strands of a braid.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 strandLinking(braid, 1, 3)
 }
 \seealso{

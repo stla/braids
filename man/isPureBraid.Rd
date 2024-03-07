@@ -16,6 +16,6 @@ A Boolean value.
 Checks whether a braid is pure, i.e. its permutation is trivial.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 isPureBraid(braid)
 }

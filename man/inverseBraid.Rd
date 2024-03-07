@@ -7,7 +7,7 @@
 inverseBraid(braid)
 }
 \arguments{
-\item{braid}{a \code{braid} object created with \code{\link{mkBraid}}}
+\item{braid}{a \code{braid} object}
 }
 \value{
 A \code{braid} object.
@@ -16,7 +16,7 @@ A \code{braid} object.
 The inverse of a braid (without performing reduction).
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 ibraid <- inverseBraid(braid)
 composeTwoBraids(braid, ibraid)
 }

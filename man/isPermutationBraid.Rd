@@ -17,6 +17,6 @@ Checks whether a braid is a permutation braid, that is,
   a positive braid where any two strands cross at most one, and positively.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 isPermutationBraid(braid)
 }

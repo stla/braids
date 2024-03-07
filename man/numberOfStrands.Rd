@@ -7,7 +7,7 @@
 numberOfStrands(braid)
 }
 \arguments{
-\item{braid}{a \code{braid} object created with \code{\link{mkBraid}}}
+\item{braid}{a \code{braid} object (e.g. created with \code{\link{mkBraid}})}
 }
 \value{
 An integer.

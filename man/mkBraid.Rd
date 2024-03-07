@@ -4,13 +4,17 @@
 \alias{mkBraid}
 \title{Make a braid}
 \usage{
-mkBraid(n, brgens)
+mkBraid(n, artingens)
 }
 \arguments{
 \item{n}{number of strands, an integer, at least 2}
 
-\item{brgens}{list of generators obtained with \code{\link{Sigma}} or
-\code{\link{SigmaInv}}}
+\item{artingens}{Artin generators given by a vector of non-zero
+integers; a positive integer \code{i} corresponds to the
+standard positive Artin generator of a braid which
+represents twisting the neighbour strands \code{i} and \code{i+1},
+such that strand \code{i} goes \emph{under} strand \code{i+1}; a
+negative integer \code{-i} corresponds to the inverse.}
 }
 \value{
 A \code{braid} object.
@@ -19,5 +23,5 @@ A \code{braid} object.
 Make a braid.
 }
 \examples{
-mkBraid(4, list(Sigma(2), SigmaInv(3)))
+mkBraid(n = 4, c(2, -3))
 }

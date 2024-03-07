@@ -16,6 +16,6 @@ A Boolean value.
 Checks whether a braid has only positive Artin generators.
 }
 \examples{
-braid <- mkBraid(4, list(Sigma(2), SigmaInv(3), Sigma(3)))
+braid <- mkBraid(4, c(2, -3, 3))
 isPositiveBraidWord(braid)
 }
