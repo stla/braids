@@ -2,7 +2,7 @@ hSepString <- function(hsep) {
   sep <- attr(hsep, "sep")
   switch(
     sep,
-    "empty" = "",
+    "empty"  = "",
     "spaces" = paste0(rep(" ", hsep), collapse = ""),
     "string" = hsep
   )
@@ -12,7 +12,7 @@ vSepString <- function(vsep) {
   sep <- attr(vsep, "sep")
   switch(
     sep,
-    "empty" = character(0L),
+    "empty"  = character(0L),
     "spaces" = paste0(rep(" ", vsep), collapse = ""),
     "string" = vsep
   )
@@ -56,7 +56,7 @@ vExtendWith <- function(valign, d, rect) {
     a <- d %/% 2L
     switch(
       valign,
-      "Vtop" = c(ls, rep(emptyLine, d)),
+      "Vtop"    = c(ls, rep(emptyLine, d)),
       "Vbottom" = c(rep(emptyLine, d), ls),
       "Vcenter" = c(rep(emptyLine, a), ls, rep(emptyLine, d - a))
     )
@@ -77,8 +77,8 @@ hExtendWith <- function(halign, d, rect) {
     a <- d %/% 2L
     switch(
       halign,
-      "Hleft" = paste0(c(l, rep(" ", d)), collapse = ""),
-      "Hright" = paste0(c(rep(" ", d), l), collapse = ""),
+      "Hleft"   = paste0(c(l, rep(" ", d)), collapse = ""),
+      "Hright"  = paste0(c(rep(" ", d), l), collapse = ""),
       "Hcenter" = paste0(c(rep(" ", a), l, rep(" ", d - a)), collapse = "")
     )
   }
@@ -158,10 +158,10 @@ asciiShow <- function(x) {
 }
 
 horizBraidASCII <- function(flipped, braid) {
-  under  = c("\\ /" , " / "  , "/ \\")
-  over   = c("\\ /" , " \\ " , "/ \\")
-  horiz  = c("   "  , "   "  , "___")
-  space3 = c("   "  , "   "  , "   ")
+  under  <- c("\\ /" , " / "  , "/ \\")
+  over   <- c("\\ /" , " \\ " , "/ \\")
+  horiz  <- c("   "  , "   "  , "___")
+  space3 <- c("   "  , "   "  , "   ")
   n <- numberOfStrands(braid)
   block2 <- function(i, middle) {
     if(flipped) {
@@ -190,14 +190,14 @@ horizBraidASCII <- function(flipped, braid) {
       lapply(x, asciiShow)
     )
   }
-  spaceBlock <- transparentBox(1L, 3L*n - 2L)
+  spaceBlock    <- transparentBox(1L, 3L*n - 2L)
   beginEndBlock <- asciiFromLines(rep(horiz, n)[-c(1L, 2L)])
-  numberBlock <- mkNumbers(1L:n)
-  numberBlock2 <- mkNumbers(braidPermutation(braid))
-  prelude <- list(numberBlock, spaceBlock, beginEndBlock)
-  epilogue <- list(beginEndBlock, spaceBlock, numberBlock2)
-  middleBlocks <- lapply(braid, block)
-  allBlocks <- c(prelude, middleBlocks, epilogue)
+  numberBlock   <- mkNumbers(1L:n)
+  numberBlock2  <- mkNumbers(braidPermutation(braid))
+  prelude       <- list(numberBlock, spaceBlock, beginEndBlock)
+  epilogue      <- list(beginEndBlock, spaceBlock, numberBlock2)
+  middleBlocks  <- lapply(braid, block)
+  allBlocks     <- c(prelude, middleBlocks, epilogue)
   vExtendWith("Vtop", 1L, hCatTop(allBlocks))
 }
 

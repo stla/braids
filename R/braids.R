@@ -363,7 +363,7 @@ linkingMatrix <- function(braid) {
   doSwap <- function(i) {
     a <- perm[i]
     b <- perm[i+1L]
-    perm[i] <<- b
+    perm[i]    <<- b
     perm[i+1L] <<- a
     invisible()
   }
@@ -463,7 +463,7 @@ isPermutation <- function(x) {
   doSwap <- function(i) {
     a <- cinv[i]
     b <- cinv[i+1L]
-    cinv[i] <<- b
+    cinv[i]    <<- b
     cinv[i+1L] <<- a
     u <- cfwd[a]
     v <- cfwd[b]
