@@ -7,7 +7,7 @@
 allPositiveBraidWords(n, l)
 }
 \arguments{
-\item{n}{number of strands, positive integer \code{>= 2}}
+\item{n}{number of strands, integer \code{>=2}}
 
 \item{l}{length of the words}
 }

@@ -7,7 +7,7 @@
 halfTwist(n)
 }
 \arguments{
-\item{n}{number of strands, integer \code{>= 2}}
+\item{n}{number of strands, integer \code{>=2}}
 }
 \value{
 A \code{braid} object.

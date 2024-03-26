@@ -171,11 +171,11 @@ braidPermutation <- function(braid) {
 }
 
 #' @title Double generator
-#' @description Generator \code{sigma_{s,t}} in the Birman-Ko-Lee new
-#'   presentation. It twistes the strands \code{s} and \code{t} whie going over
-#'   all other strands (for \code{t=s+1}, this is \code{sigma_s}).
+#' @description Generator \eqn{\sigma_{s,t}} in the Birman-Ko-Lee new
+#'   presentation. It twists the strands \code{s} and \code{t} while going over
+#'   all other strands (for \code{t=s+1}, this is \eqn{\sigma_s}).
 #'
-#' @param n number of strands, integer \code{>= 2}
+#' @param n number of strands, integer \code{>=2}
 #' @param s,t indices of two strands, \code{s < t}
 #'
 #' @return A \code{braid} object.
@@ -207,7 +207,7 @@ doubleSigma <- function(n, s, t) {
 #' @description The (positive) half-twist of all the braid strands, usually
 #'   denoted by \eqn{\Delta}.
 #'
-#' @param n number of strands, integer \code{>= 2}
+#' @param n number of strands, integer \code{>=2}
 #'
 #' @return A \code{braid} object.
 #' @export
@@ -230,7 +230,7 @@ halfTwist <- function(n) {
 #' @title Inner automorphism
 #' @description The inner automorphism defined by
 #'   \eqn{\tau X = \Delta^{-1} X \Delta}, where \eqn{\Delta} is the
-#'   positive half-twist; it send each generator \eqn{\sigma_j} to
+#'   positive half-twist; it sends each generator \eqn{\sigma_j} to
 #'   \eqn{\sigma_{n-j}}.
 #'
 #' @param braid a \code{braid} object
@@ -523,7 +523,7 @@ permutationBraid <- function(perm) {
 #' @title Positive braid words of given length
 #' @description All positive braid words of the given length.
 #'
-#' @param n number of strands, positive integer \code{>= 2}
+#' @param n number of strands, integer \code{>=2}
 #' @param l length of the words
 #'
 #' @return A list of \code{braid} objects.
@@ -559,7 +559,7 @@ allPositiveBraidWords <- function(n, l) {
 #' @title Braid words of given length
 #' @description All braid words of the given length.
 #'
-#' @param n number of strands, positive integer \code{>= 2}
+#' @param n number of strands, integer \code{>=2}
 #' @param l length of the words
 #'
 #' @return A list of \code{braid} objects.

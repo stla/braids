@@ -7,7 +7,7 @@
 doubleSigma(n, s, t)
 }
 \arguments{
-\item{n}{number of strands, integer \code{>= 2}}
+\item{n}{number of strands, integer \code{>=2}}
 
 \item{s, t}{indices of two strands, \code{s < t}}
 }
@@ -15,9 +15,9 @@ doubleSigma(n, s, t)
 A \code{braid} object.
 }
 \description{
-Generator \code{sigma_{s,t}} in the Birman-Ko-Lee new
-  presentation. It twistes the strands \code{s} and \code{t} whie going over
-  all other strands (for \code{t=s+1}, this is \code{sigma_s}).
+Generator \eqn{\sigma_{s,t}} in the Birman-Ko-Lee new
+  presentation. It twists the strands \code{s} and \code{t} while going over
+  all other strands (for \code{t=s+1}, this is \eqn{\sigma_s}).
 }
 \examples{
 doubleSigma(5, 1, 3)

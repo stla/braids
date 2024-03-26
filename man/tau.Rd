@@ -15,7 +15,7 @@ A \code{braid} object.
 \description{
 The inner automorphism defined by
   \eqn{\tau X = \Delta^{-1} X \Delta}, where \eqn{\Delta} is the
-  positive half-twist; it send each generator \eqn{\sigma_j} to
+  positive half-twist; it sends each generator \eqn{\sigma_j} to
   \eqn{\sigma_{n-j}}.
 }
 \examples{
