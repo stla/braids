@@ -11,7 +11,7 @@ Description: Deals with the braid groups. Includes creation of some
     polynomials. Braid theory has applications in fluid mechanics and
     quantum physics. The code is adapted from the 'Haskell' library
     'combinat', and is based on Birman and Brendle (2005)
-    <doi/10.48550/arXiv.math/0409205>.
+    <doi:10.48550/arXiv.math/0409205>.
 License: GPL-3
 URL: https://github.com/stla/braids
 BugReports: https://github.com/stla/braids/issues
